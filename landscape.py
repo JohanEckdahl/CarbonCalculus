@@ -2,21 +2,18 @@
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
-
+from .plotmixin import *
+from .regime import Regime
 
 @dataclass
 class Landscape(LandscapePlotMixin):
-    regime_class: type = Regime #Type should be child of abstract Regime class
+    regime: type = Regime() # Regime subclass
     size: tuple[int, int] = (10, 10)
     initial_carbon: float = 100
     log_spinup: bool = False
 
     def __post_init__(self):
-        #Instantiate initial regime class
-        self.regime = self.regime_class()
         # The regime shift must happen after a certain amount of time has passed
         self.shifted_regime = None
         # Initialize Carbon matrix as nan values. Values will be filled in with initial carbon values when first disturbed.
@@ -53,7 +50,7 @@ class Landscape(LandscapePlotMixin):
         t, C = self.last_disturbance, self.carbon
 
         # Disturb
-        D = np.where(np.random.random(t.shape) < self.regime.disturbance_probability(t), self.regime.disturbance(t, C), 0)
+        D = np.where(np.random.random(t.shape) < self.regime.disturbance_probability(t, C), self.regime.disturbance(t, C), 0)
         C -= D
         t[D > 0] = 0
         
@@ -69,7 +66,7 @@ class Landscape(LandscapePlotMixin):
         if log:
             # Store
             self.legacy.append({
-                "Landscape Carbon": np.nansum(C),
+                "Average Carbon": np.nanmean(C),
                 "Average Growth": np.nanmean(G),
                 "Average Decay": np.nanmean(L),
                 "Average Disturbance": np.nanmean(D),
@@ -82,12 +79,12 @@ class Landscape(LandscapePlotMixin):
                 "patch Age": t[self.patch],
               })
     
-        # Advance
+        # Advance time
         t += 1 
 
             
-    def regime_shift(self,regime_class):
-        self.regime = regime_class()
+    def regime_shift(self, regime):
+        self.shifted_regime = regime
 
 
     def run(self, years):

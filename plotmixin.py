@@ -3,8 +3,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from dataclasses import dataclass
-from abc import ABC, abstractmethod
+
 
 
 
@@ -57,7 +56,7 @@ class LandscapePlotMixin:
         # -------------------------
         ax3 = axes[1]
 
-        ax3.plot(df.index, df["Landscape Carbon"], label="Landscape Carbon")
+        ax3.plot(df.index, df["Average Carbon"], label="Average Carbon")
         ax3.set_ylabel("Landscape Carbon")
 
         ax4 = ax3.twinx()
