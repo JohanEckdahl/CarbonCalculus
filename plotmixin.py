@@ -11,11 +11,11 @@ class RegimePlotMixin:
 
     def plot(self):
         ages = np.arange(0, 300)
-        p = self.disturbance_probability(ages)
+        p = self.disturbance_probability(ages,None)
         plt.plot(ages, p)
         plt.xlabel("Age")
         plt.ylabel("Annual disturbance probability")
-        plt.ylim(0, max_prob * 1.1)
+        plt.ylim(0, p.max() * 1.1)
         plt.grid(True)
         plt.show()
 
@@ -30,21 +30,21 @@ class LandscapePlotMixin:
         fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
         # -------------------------
-        # TOP: patch dynamics
+        # TOP: Patch dynamics
         # -------------------------
         ax1 = axes[0]
 
-        ax1.plot(df.index, df["patch Carbon"], label="patch Carbon")
+        ax1.plot(df.index, df["Patch Carbon"], label="Patch Carbon")
 
-        ax1.set_ylabel("patch Carbon")
+        ax1.set_ylabel("Patch Carbon")
 
         ax2 = ax1.twinx()
-        ax2.plot(df.index, df["patch Growth"], linestyle="--", label="patch Growth")
-        ax2.plot(df.index, df["patch Decay"], linestyle="--", label="patch Decay")
+        ax2.plot(df.index, df["Patch Growth"], linestyle="--", label="Patch Growth", color ='green')
+        ax2.plot(df.index, df["Patch Decay"], linestyle="--", label="Patch Decay", color='brown')
 
-        ax2.set_ylabel("patch Fluxes")
+        ax2.set_ylabel("Patch Fluxes")
 
-        ax1.set_title("patch-Level Dynamics")
+        ax1.set_title("Patch-Level Dynamics")
 
         # combine legends
         lines1, labels1 = ax1.get_legend_handles_labels()
@@ -60,9 +60,9 @@ class LandscapePlotMixin:
         ax3.set_ylabel("Landscape Carbon")
 
         ax4 = ax3.twinx()
-        ax4.plot(df.index, df["Average Growth"], linestyle="--", label="Avg Growth")
-        ax4.plot(df.index, df["Average Decay"], linestyle="--", label="Avg Decay")
-        ax4.plot(df.index, df["Average Disturbance"], linestyle="--", label="Avg Disturbance")
+        ax4.plot(df.index, df["Average Growth"], linestyle="--", label="Avg Growth", color='green')
+        ax4.plot(df.index, df["Average Decay"], linestyle="--", label="Avg Decay", color = 'brown')
+        ax4.plot(df.index, df["Average Disturbance"], linestyle="--", label="Avg Disturbance", color = 'gray')
 
         ax4.set_ylabel("Average Fluxes")
 
