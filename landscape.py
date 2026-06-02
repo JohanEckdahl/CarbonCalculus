@@ -21,7 +21,7 @@ def timer(func):
 
 @dataclass
 class Landscape(LandscapePlotMixin):
-    regime: type = Regime() # Regime subclass
+    regime: Regime # Regime subclass
     size: tuple[int, int] = (10, 10)
     initial_carbon: float = 100
     store_spinup  : bool = False
@@ -31,13 +31,13 @@ class Landscape(LandscapePlotMixin):
 
     def __post_init__(self):
         # Set parameters, initialize matrices, etc.
-        self.initialize()
+        self._initialize()
 
         # Execute spinup
-        self.spin_up()
+        self._spin_up()
 
     
-    def initialize(self):
+    def _initialize(self):
         # The regime shift must happen after the Spinup
         self.shifted_regime = None
         
@@ -67,7 +67,7 @@ class Landscape(LandscapePlotMixin):
     # SPIN-UP
     # -------------------------
     @timer
-    def spin_up(self):
+    def _spin_up(self):
         # Loop until all nan values are replaced with numbers in the carbon matrix
         while np.isnan(self.carbon).any():
             # Get nan patches ready for disturbance 
@@ -75,10 +75,11 @@ class Landscape(LandscapePlotMixin):
             # Apply initial carbon value to retrieved patches
             self.carbon[mask] = self.initial_carbon
             # Execute yearly step
-            self.step(log=self.store_spinup)
+            self._step(log = self.store_spinup)
 
 
-    def log(self, t, C, G, L, D):
+
+    def _log(self, t, C, G, L, D):
             fields = {"Carbon": C, "Growth": G, "Decay": L, "Disturbance": D, "Age": t}
             self.legacy.append(
                 {f"Average {k}": np.nanmean(v) for k, v in fields.items()} |
@@ -89,7 +90,7 @@ class Landscape(LandscapePlotMixin):
     # -------------------------
     # STEP
     # -------------------------
-    def step(self, log=True):
+    def _step(self, log=True):
         t, C, S, reg1, reg2 = self.last_disturbance, self.carbon, self.patch_state, self.regime, self.shifted_regime
         
         # Build disturbance probability
@@ -145,7 +146,7 @@ class Landscape(LandscapePlotMixin):
             C -= L
 
         # --- Log ---
-        if log: self.log(t, C, G, L, D)
+        if log: self._log(t, C, G, L, D)
 
         # --- Advance time ---
         t += 1
@@ -155,7 +156,7 @@ class Landscape(LandscapePlotMixin):
             self.regime = self.shifted_regime
             self.shifted_regime = None
             self.patch_state = None
-            
+
     
     def regime_shift(self, regime):
         self.shifted_regime = regime
@@ -165,7 +166,7 @@ class Landscape(LandscapePlotMixin):
     @timer
     def run(self, years):
         for _ in range(years):
-            self.step()
+            self._step()
 
     
     @property
