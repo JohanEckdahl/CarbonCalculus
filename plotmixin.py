@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 
 
 
 class RegimePlotMixin:
-
     def plot(self):
         ages = np.arange(0, 300)
         p = self.disturbance_probability(ages,None)
@@ -43,6 +41,9 @@ class LandscapePlotMixin:
         ax2.plot(df.index, df["Patch Decay"], linestyle="--", label="Patch Decay", color='brown')
 
         ax2.set_ylabel("Patch Fluxes")
+        
+        ax1.set_ylim(bottom=0)
+        ax2.set_ylim(bottom=0)
 
         ax1.set_title("Patch-Level Dynamics")
 
@@ -58,13 +59,42 @@ class LandscapePlotMixin:
 
         ax3.plot(df.index, df["Average Carbon"], label="Average Carbon")
         ax3.set_ylabel("Landscape Carbon")
+        ax3.set_ylim(bottom=0)
 
         ax4 = ax3.twinx()
-        ax4.plot(df.index, df["Average Growth"], linestyle="--", label="Avg Growth", color='green')
-        ax4.plot(df.index, df["Average Decay"], linestyle="--", label="Avg Decay", color = 'brown')
-        ax4.plot(df.index, df["Average Disturbance"], linestyle="--", label="Avg Disturbance", color = 'gray')
+
+        ax4.plot(
+            df.index,
+            df["Average Growth"],
+            linestyle="--",
+            label="Avg Growth",
+            color="green"
+        )
+
+        ax4.plot(
+            df.index,
+            df["Average Decay"],
+            linestyle="--",
+            label="Avg Decay",
+            color="brown"
+        )
+
+        # Disturbance rug marks
+        dist = df["Average Disturbance"]
+        mask = dist > 0
+
+        ax4.vlines(
+            df.index[mask],
+            0,
+            dist[mask],
+            color="lightgray",
+            linewidth=1,
+            alpha=0.8,
+            label="Avg Disturbance"
+        )
 
         ax4.set_ylabel("Average Fluxes")
+        ax4.set_ylim(bottom=0)
 
         ax3.set_title("Landscape-Level Dynamics")
         ax3.set_xlabel("Year")
